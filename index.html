@@ -15,6 +15,7 @@
   --grey:#888;
   --border:#E0DDD8;
   --light:#F0EEE9;
+  --green:#4ade80;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -35,11 +36,20 @@ body{
 nav{
   position:fixed;top:0;left:0;right:0;
   z-index:100;
-  background:var(--white);
-  border-bottom:1px solid var(--border);
+  background:rgba(248,247,244,.85);
+  -webkit-backdrop-filter:saturate(180%) blur(0px);
+  backdrop-filter:saturate(180%) blur(0px);
+  border-bottom:1px solid transparent;
   padding:0 48px;
   height:60px;
   display:flex;align-items:center;justify-content:space-between;
+  transition:border-color .3s,box-shadow .3s,backdrop-filter .3s;
+}
+nav.scrolled{
+  border-bottom:1px solid var(--border);
+  -webkit-backdrop-filter:saturate(180%) blur(12px);
+  backdrop-filter:saturate(180%) blur(12px);
+  box-shadow:0 1px 20px rgba(10,10,10,.04);
 }
 .nav-logo{
   font-family:'DM Serif Display',serif;
@@ -52,16 +62,22 @@ nav{
 .nav-links a{
   font-size:13px;font-weight:400;
   color:var(--grey);text-decoration:none;
-  transition:color .15s;
+  transition:color .15s;position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;left:0;bottom:-4px;
+  width:0;height:1px;background:var(--black);
+  transition:width .25s ease;
 }
 .nav-links a:hover{color:var(--black)}
+.nav-links a:hover::after{width:100%}
 .nav-cta{
   font-size:13px;font-weight:500;
   background:var(--black);color:var(--white);
   padding:9px 20px;border-radius:4px;
-  text-decoration:none;transition:opacity .15s;
+  text-decoration:none;transition:transform .15s,opacity .15s;
 }
-.nav-cta:hover{opacity:.85}
+.nav-cta:hover{opacity:.85;transform:translateY(-1px)}
 
 /* ── HERO ── */
 .hero{
@@ -93,6 +109,17 @@ nav{
 .hero-headline em{
   font-style:italic;color:var(--grey);
 }
+.hero-headline .w{display:inline-block;opacity:0;transform:translateY(16px);will-change:transform,opacity}
+.hero-headline.go .w{animation:wordup .7s cubic-bezier(.2,.7,.2,1) forwards}
+.hero-headline.go .w:nth-child(1){animation-delay:.05s}
+.hero-headline.go .w:nth-child(2){animation-delay:.10s}
+.hero-headline.go .w:nth-child(3){animation-delay:.15s}
+.hero-headline.go .w:nth-child(4){animation-delay:.24s}
+.hero-headline.go .w:nth-child(5){animation-delay:.30s}
+.hero-headline.go .w:nth-child(6){animation-delay:.40s}
+.hero-headline.go .w:nth-child(7){animation-delay:.46s}
+.hero-headline.go .w:nth-child(8){animation-delay:.52s}
+@keyframes wordup{to{opacity:1;transform:translateY(0)}}
 .hero-sub{
   font-size:17px;line-height:1.7;
   color:#444;max-width:480px;
@@ -103,19 +130,27 @@ nav{
   background:var(--black);color:var(--white);
   padding:14px 28px;border-radius:4px;
   font-size:14px;font-weight:500;
-  text-decoration:none;transition:opacity .15s;
-  display:inline-block;
+  text-decoration:none;transition:transform .2s cubic-bezier(.2,.7,.2,1),opacity .15s;
+  display:inline-block;position:relative;overflow:hidden;
 }
-.btn-primary:hover{opacity:.85}
+.btn-primary::after{
+  content:'';position:absolute;top:0;left:-130%;
+  width:60%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);
+  transform:skewX(-18deg);
+}
+.btn-primary:hover::after{animation:shine .9s ease}
+@keyframes shine{to{left:130%}}
+.btn-primary:hover{opacity:.92}
 .btn-secondary{
   background:transparent;color:var(--black);
   padding:14px 28px;border-radius:4px;
   font-size:14px;font-weight:400;
-  text-decoration:none;transition:all .15s;
+  text-decoration:none;transition:all .2s;
   border:1px solid var(--border);
   display:inline-block;
 }
-.btn-secondary:hover{border-color:var(--black)}
+.btn-secondary:hover{border-color:var(--black);transform:translateY(-1px)}
 .hero-note{font-size:12px;color:var(--grey);margin-top:16px}
 
 /* ── HERO VISUAL ── */
@@ -125,6 +160,7 @@ nav{
   padding:28px;
   position:relative;
   overflow:hidden;
+  box-shadow:0 30px 80px -30px rgba(10,10,10,.45);
 }
 .hero-visual::before{
   content:'';position:absolute;
@@ -133,23 +169,36 @@ nav{
   border-radius:50%;
   background:rgba(255,255,255,.03);
 }
+/* moving parts: glow follows cursor + scan sweep */
+.hv-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(220px circle at var(--mx,75%) var(--my,12%),rgba(74,222,128,.10),transparent 60%);
+  transition:background .2s;
+}
+.hv-scan{
+  position:absolute;left:0;right:0;top:0;height:120px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.06),transparent);
+  animation:scan 6s cubic-bezier(.5,0,.5,1) infinite;opacity:.7;
+}
+@keyframes scan{0%{transform:translateY(-120px)}60%,100%{transform:translateY(560px)}}
 .hv-header{
   display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:24px;
+  margin-bottom:24px;position:relative;
 }
 .hv-title{font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4)}
 .hv-live{
   display:flex;align-items:center;gap:6px;
   font-size:11px;color:rgba(255,255,255,.5);
 }
-.hv-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.hv-kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.hv-kpi{background:rgba(255,255,255,.05);border-radius:6px;padding:14px 16px}
+.hv-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;box-shadow:0 0 0 0 rgba(74,222,128,.5)}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.45)}50%{opacity:.5;box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+.hv-kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;position:relative}
+.hv-kpi{background:rgba(255,255,255,.05);border-radius:6px;padding:14px 16px;transition:background .2s}
+.hv-kpi:hover{background:rgba(255,255,255,.08)}
 .hv-kpi-l{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
-.hv-kpi-v{font-family:'DM Mono',monospace;font-size:20px;font-weight:400;color:white}
+.hv-kpi-v{font-family:'DM Mono',monospace;font-size:20px;font-weight:400;color:white;font-variant-numeric:tabular-nums}
 .hv-kpi-s{font-size:11px;color:rgba(255,255,255,.3);margin-top:3px}
-.hv-recon{margin-bottom:16px}
+.hv-recon{margin-bottom:16px;position:relative}
 .hv-recon-label{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
 .hv-row{
   display:flex;align-items:center;justify-content:space-between;
@@ -158,6 +207,8 @@ nav{
   font-size:12px;
 }
 .hv-row:last-child{border-bottom:none}
+.hv-row.enter{animation:rowin .55s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rowin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .hv-row-left{display:flex;align-items:center;gap:8px}
 .hv-psp{
   width:20px;height:20px;border-radius:3px;
@@ -165,19 +216,21 @@ nav{
   font-size:9px;font-weight:700;color:white;
 }
 .hv-name{color:rgba(255,255,255,.7)}
-.hv-amt{font-family:'DM Mono',monospace;color:rgba(255,255,255,.6);font-size:11px}
+.hv-amt{font-family:'DM Mono',monospace;color:rgba(255,255,255,.6);font-size:11px;font-variant-numeric:tabular-nums}
 .hv-status{
   font-size:9px;font-weight:600;
   padding:2px 7px;border-radius:20px;
-  letter-spacing:.3px;
+  letter-spacing:.3px;transition:background .4s,color .4s;
 }
 .st-matched{background:rgba(74,222,128,.15);color:#4ade80}
 .st-pending{background:rgba(251,191,36,.15);color:#fbbf24}
 .st-alert{background:rgba(248,113,113,.15);color:#f87171}
+.st-flip{animation:flippop .5s cubic-bezier(.2,.7,.2,1)}
+@keyframes flippop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 .hv-footer{
   display:flex;justify-content:space-between;align-items:center;
   padding-top:14px;border-top:1px solid rgba(255,255,255,.07);
-  font-size:11px;color:rgba(255,255,255,.3);
+  font-size:11px;color:rgba(255,255,255,.3);position:relative;
 }
 
 /* ── LOGOS ── */
@@ -188,8 +241,16 @@ nav{
   display:flex;align-items:center;gap:0;
 }
 .logos-label{font-size:11px;color:var(--grey);white-space:nowrap;margin-right:40px;letter-spacing:.5px;text-transform:uppercase}
-.logos-list{display:flex;align-items:center;gap:40px;flex-wrap:wrap}
-.logo-item{font-size:13px;font-weight:500;color:#BBB;letter-spacing:-.2px}
+.logos-marquee{
+  flex:1;overflow:hidden;position:relative;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+}
+.logos-track{display:flex;align-items:center;gap:40px;width:max-content;animation:marquee 34s linear infinite}
+.logos-marquee:hover .logos-track{animation-play-state:paused}
+@keyframes marquee{to{transform:translateX(-50%)}}
+.logo-item{font-size:13px;font-weight:500;color:#BBB;letter-spacing:-.2px;white-space:nowrap;transition:color .2s}
+.logo-item:hover{color:var(--black)}
 
 /* ── SECTION ── */
 section{padding:100px 48px;max-width:1200px;margin:0 auto}
@@ -221,20 +282,32 @@ section{padding:100px 48px;max-width:1200px;margin:0 auto}
 }
 .problem-cell{
   background:var(--white);
-  padding:40px;
+  padding:40px;transition:background .25s;
 }
+.problem-cell:hover{background:#FCFBF9}
 .problem-num{
   font-family:'DM Serif Display',serif;
   font-size:48px;color:var(--border);
-  margin-bottom:16px;line-height:1;
+  margin-bottom:16px;line-height:1;transition:color .25s;
 }
+.problem-cell:hover .problem-num{color:#CFCAC2}
 .problem-title{font-size:17px;font-weight:500;margin-bottom:10px}
 .problem-body{font-size:14px;color:#666;line-height:1.7}
 
 /* ── HOW IT WORKS ── */
+.how-flow{
+  margin-top:48px;border:1px solid var(--border);border-radius:8px;
+  background:var(--white);padding:24px 28px;overflow:hidden;
+}
+.how-flow svg{display:block;width:100%;height:auto}
+.flow-dash{stroke:var(--border);stroke-width:2;fill:none;stroke-dasharray:7 7;animation:flowdash 1.2s linear infinite}
+@keyframes flowdash{to{stroke-dashoffset:-28}}
+.flow-node{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;fill:var(--black)}
+.flow-sub{font-size:9.5px;fill:var(--grey)}
+.flow-pellet{fill:var(--black)}
 .how-grid{
   display:grid;grid-template-columns:repeat(3,1fr);
-  gap:40px;margin-top:60px;
+  gap:40px;margin-top:48px;
 }
 .how-step{border-top:2px solid var(--black);padding-top:24px}
 .how-n{
@@ -250,12 +323,14 @@ section{padding:100px 48px;max-width:1200px;margin:0 auto}
   display:grid;grid-template-columns:1fr 1fr;
   gap:40px 60px;margin-top:60px;
 }
-.feature{padding-top:28px;border-top:1px solid var(--border)}
+.feature{padding-top:28px;border-top:1px solid var(--border);transition:transform .25s}
+.feature:hover{transform:translateY(-3px)}
 .feature-icon{
   width:36px;height:36px;background:var(--black);
   border-radius:6px;display:flex;align-items:center;
-  justify-content:center;margin-bottom:16px;
+  justify-content:center;margin-bottom:16px;transition:transform .25s;
 }
+.feature:hover .feature-icon{transform:scale(1.08) rotate(-3deg)}
 .feature-icon svg{display:block}
 .feature-title{font-size:16px;font-weight:500;margin-bottom:8px}
 .feature-body{font-size:14px;color:#666;line-height:1.7}
@@ -263,12 +338,17 @@ section{padding:100px 48px;max-width:1200px;margin:0 auto}
 /* ── PROOF ── */
 .proof-band{
   background:var(--black);
-  padding:80px 48px;
+  padding:80px 48px;position:relative;overflow:hidden;
+}
+.proof-band .spotlight{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,30%),rgba(255,255,255,.06),transparent 65%);
+  transition:background .2s;
 }
 .proof-inner{
   max-width:1200px;margin:0 auto;
   display:grid;grid-template-columns:1fr 2fr;
-  gap:80px;align-items:start;
+  gap:80px;align-items:start;position:relative;
 }
 .proof-left .section-label{color:rgba(255,255,255,.4)}
 .proof-left .section-label::before{background:rgba(255,255,255,.4)}
@@ -279,10 +359,12 @@ section{padding:100px 48px;max-width:1200px;margin:0 auto}
   background:var(--black);
   padding:28px 32px;
   display:flex;align-items:center;justify-content:space-between;
+  transition:background .25s;
 }
+.stat-row:hover{background:#141414}
 .stat-n{
   font-family:'DM Serif Display',serif;
-  font-size:48px;color:white;letter-spacing:-1px;
+  font-size:48px;color:white;letter-spacing:-1px;font-variant-numeric:tabular-nums;
 }
 .stat-desc{font-size:14px;color:rgba(255,255,255,.5);max-width:300px;line-height:1.5}
 
@@ -340,9 +422,14 @@ section{padding:100px 48px;max-width:1200px;margin:0 auto}
 .cta-section{
   background:var(--black);
   padding:120px 48px;
-  text-align:center;
+  text-align:center;position:relative;overflow:hidden;
 }
-.cta-inner{max-width:640px;margin:0 auto}
+.cta-section .spotlight{
+  position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(480px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.05),transparent 65%);
+  transition:background .2s;
+}
+.cta-inner{max-width:640px;margin:0 auto;position:relative}
 .cta-title{
   font-family:'DM Serif Display',serif;
   font-size:clamp(36px,5vw,60px);
@@ -361,20 +448,20 @@ section{padding:100px 48px;max-width:1200px;margin:0 auto}
   border:1px solid rgba(255,255,255,.15);
   border-radius:4px;color:white;
   font-size:14px;font-family:inherit;
-  outline:none;transition:border .15s;
+  outline:none;transition:border .15s,box-shadow .15s;
 }
 .cta-input::placeholder{color:rgba(255,255,255,.3)}
-.cta-input:focus{border-color:rgba(255,255,255,.4)}
+.cta-input:focus{border-color:rgba(255,255,255,.4);box-shadow:0 0 0 3px rgba(255,255,255,.06)}
 .cta-submit{
   padding:14px 24px;
   background:white;color:var(--black);
   border:none;border-radius:4px;
   font-size:14px;font-weight:500;
   cursor:pointer;font-family:inherit;
-  white-space:nowrap;transition:opacity .15s;
+  white-space:nowrap;transition:transform .15s,opacity .15s;
 }
-.cta-submit:hover{opacity:.9}
-.cta-note{font-size:12px;color:rgba(255,255,255,.3)}
+.cta-submit:hover{opacity:.92;transform:translateY(-1px)}
+.cta-note{font-size:12px;color:rgba(255,255,255,.3);transition:color .3s}
 
 /* ── FOOTER ── */
 footer{
@@ -392,10 +479,13 @@ footer{
 .footer-links a:hover{color:var(--black)}
 .footer-copy{font-size:12px;color:var(--grey)}
 
-/* ── ANIMATIONS ── */
+/* ── ANIMATIONS / REVEAL ── */
 @keyframes fadeup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeup .6s ease both}
 .delay-1{animation-delay:.1s}.delay-2{animation-delay:.2s}.delay-3{animation-delay:.3s}.delay-4{animation-delay:.4s}
+
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
 
 /* ── RESPONSIVE ── */
 @media(max-width:900px){
@@ -415,12 +505,21 @@ footer{
   footer{padding:32px 24px;flex-direction:column;align-items:flex-start}
   .logos-bar{padding:24px}
 }
+
+/* ── REDUCED MOTION ── */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .logos-track{animation:none;transform:none}
+  .hv-scan,.flow-dash{animation:none}
+  .reveal{opacity:1;transform:none}
+  .hero-headline .w{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
+<nav id="nav">
   <a href="#" class="nav-logo">Shodipo</a>
   <div class="nav-links">
     <a href="#how">How it works</a>
@@ -435,21 +534,23 @@ footer{
 <div class="hero">
   <div class="fade-up">
     <div class="hero-eyebrow">Cash Intelligence Platform</div>
-    <h1 class="hero-headline">
-      Your PSP settlements.<br>
-      <em>Reconciled automatically.</em><br>
-      In real time.
+    <h1 class="hero-headline" id="heroHeadline">
+      <span class="w">Your</span> <span class="w">PSP</span> <span class="w">settlements.</span><br>
+      <em><span class="w">Reconciled</span> <span class="w">automatically.</span></em><br>
+      <span class="w">In</span> <span class="w">real</span> <span class="w">time.</span>
     </h1>
     <p class="hero-sub">Multi-channel retailers spend days every month manually matching settlement reports across Stripe, Amazon, PayPal and their banks. Shodipo eliminates that entirely — giving your finance team a live, reconciled cash position at all times.</p>
     <div class="hero-actions">
-      <a href="#contact" class="btn-primary">Request a demo</a>
+      <a href="#contact" class="btn-primary" data-magnetic>Request a demo</a>
       <a href="#how" class="btn-secondary">See how it works</a>
     </div>
     <p class="hero-note">Built for retailers doing £5M–£100M. No setup fee for pilot customers.</p>
   </div>
 
   <!-- DASHBOARD PREVIEW -->
-  <div class="hero-visual fade-up delay-2">
+  <div class="hero-visual fade-up delay-2" id="heroVisual">
+    <div class="hv-glow"></div>
+    <div class="hv-scan"></div>
     <div class="hv-header">
       <span class="hv-title">Shodipo Dashboard</span>
       <div class="hv-live"><div class="hv-dot"></div>Live</div>
@@ -457,54 +558,56 @@ footer{
     <div class="hv-kpis">
       <div class="hv-kpi">
         <div class="hv-kpi-l">Available Now</div>
-        <div class="hv-kpi-v">£2.84M</div>
+        <div class="hv-kpi-v" id="kpiAvailable" data-prefix="£" data-value="2.84" data-suffix="M" data-decimals="2">£2.84M</div>
         <div class="hv-kpi-s">Across all PSPs</div>
       </div>
       <div class="hv-kpi">
         <div class="hv-kpi-l">Arriving This Week</div>
-        <div class="hv-kpi-v">£1.2M</div>
+        <div class="hv-kpi-v" data-prefix="£" data-value="1.2" data-suffix="M" data-decimals="1">£1.2M</div>
         <div class="hv-kpi-s">4 settlements pending</div>
       </div>
       <div class="hv-kpi">
         <div class="hv-kpi-l">30-Day Forecast</div>
-        <div class="hv-kpi-v">£6.7M</div>
+        <div class="hv-kpi-v" data-prefix="£" data-value="6.7" data-suffix="M" data-decimals="1">£6.7M</div>
         <div class="hv-kpi-s">Based on run rate</div>
       </div>
       <div class="hv-kpi">
         <div class="hv-kpi-l">Discrepancies</div>
-        <div class="hv-kpi-v" style="color:#f87171">2</div>
+        <div class="hv-kpi-v" style="color:#f87171" data-value="2" data-decimals="0">2</div>
         <div class="hv-kpi-s">Require attention</div>
       </div>
     </div>
     <div class="hv-recon">
       <div class="hv-recon-label">Recent Settlements</div>
-      <div class="hv-row">
-        <div class="hv-row-left">
-          <div class="hv-psp" style="background:#635BFF">S</div>
-          <span class="hv-name">Stripe</span>
+      <div id="hvRows">
+        <div class="hv-row">
+          <div class="hv-row-left">
+            <div class="hv-psp" style="background:#635BFF">S</div>
+            <span class="hv-name">Stripe</span>
+          </div>
+          <span class="hv-amt">£284,200</span>
+          <span class="hv-status st-matched">Matched</span>
         </div>
-        <span class="hv-amt">£284,200</span>
-        <span class="hv-status st-matched">Matched</span>
-      </div>
-      <div class="hv-row">
-        <div class="hv-row-left">
-          <div class="hv-psp" style="background:#FF9900">A</div>
-          <span class="hv-name">Amazon</span>
+        <div class="hv-row">
+          <div class="hv-row-left">
+            <div class="hv-psp" style="background:#FF9900">A</div>
+            <span class="hv-name">Amazon</span>
+          </div>
+          <span class="hv-amt">£512,840</span>
+          <span class="hv-status st-pending" id="amazonStatus">Pending</span>
         </div>
-        <span class="hv-amt">£512,840</span>
-        <span class="hv-status st-pending">Pending</span>
-      </div>
-      <div class="hv-row">
-        <div class="hv-row-left">
-          <div class="hv-psp" style="background:#003087">P</div>
-          <span class="hv-name">PayPal</span>
+        <div class="hv-row">
+          <div class="hv-row-left">
+            <div class="hv-psp" style="background:#003087">P</div>
+            <span class="hv-name">PayPal</span>
+          </div>
+          <span class="hv-amt">£98,440</span>
+          <span class="hv-status st-alert">Discrepancy</span>
         </div>
-        <span class="hv-amt">£98,440</span>
-        <span class="hv-status st-alert">Discrepancy</span>
       </div>
     </div>
     <div class="hv-footer">
-      <span>Updated 2 minutes ago</span>
+      <span id="hvUpdated">Updated just now</span>
       <span>Barclays ••• 4821 connected</span>
     </div>
   </div>
@@ -514,40 +617,50 @@ footer{
 <!-- LOGOS -->
 <div class="logos-bar">
   <span class="logos-label">Works with</span>
-  <div class="logos-list">
-    <span class="logo-item">Stripe</span>
-    <span class="logo-item">Amazon Seller</span>
-    <span class="logo-item">PayPal</span>
-    <span class="logo-item">Shopify Payments</span>
-    <span class="logo-item">Open Banking</span>
-    <span class="logo-item">Barclays</span>
-    <span class="logo-item">HSBC</span>
-    <span class="logo-item">Lloyds</span>
+  <div class="logos-marquee">
+    <div class="logos-track" id="logosTrack">
+      <span class="logo-item">Stripe</span>
+      <span class="logo-item">Amazon Seller</span>
+      <span class="logo-item">PayPal</span>
+      <span class="logo-item">Shopify Payments</span>
+      <span class="logo-item">Open Banking</span>
+      <span class="logo-item">Barclays</span>
+      <span class="logo-item">HSBC</span>
+      <span class="logo-item">Lloyds</span>
+      <span class="logo-item" aria-hidden="true">Stripe</span>
+      <span class="logo-item" aria-hidden="true">Amazon Seller</span>
+      <span class="logo-item" aria-hidden="true">PayPal</span>
+      <span class="logo-item" aria-hidden="true">Shopify Payments</span>
+      <span class="logo-item" aria-hidden="true">Open Banking</span>
+      <span class="logo-item" aria-hidden="true">Barclays</span>
+      <span class="logo-item" aria-hidden="true">HSBC</span>
+      <span class="logo-item" aria-hidden="true">Lloyds</span>
+    </div>
   </div>
 </div>
 
 <!-- PROBLEM -->
 <section>
-  <div class="section-label">The problem</div>
-  <h2 class="section-title">Your cash is reconciled<br><em class="serif" style="font-style:italic;color:var(--grey)">days after it matters.</em></h2>
-  <p class="section-sub">Multi-channel retail creates a reconciliation problem that gets worse as you scale. More PSPs, more settlement schedules, more manual work.</p>
+  <div class="section-label reveal">The problem</div>
+  <h2 class="section-title reveal">Your cash is reconciled<br><em class="serif" style="font-style:italic;color:var(--grey)">days after it matters.</em></h2>
+  <p class="section-sub reveal">Multi-channel retail creates a reconciliation problem that gets worse as you scale. More PSPs, more settlement schedules, more manual work.</p>
   <div class="problem-grid">
-    <div class="problem-cell">
+    <div class="problem-cell reveal">
       <div class="problem-num">01</div>
       <div class="problem-title">Settlements arrive on different schedules</div>
       <div class="problem-body">Stripe settles daily. Amazon every 14 days — with reserves. PayPal holds funds unpredictably. Your bank receives them all at different times with no standard reference. Matching them is a manual job that falls to your finance team.</div>
     </div>
-    <div class="problem-cell">
+    <div class="problem-cell reveal">
       <div class="problem-num">02</div>
       <div class="problem-title">Your cash position is always out of date</div>
       <div class="problem-body">By the time your team has reconciled last week's settlements, this week's have already started arriving. Your Finance Director makes cash decisions based on data that's 48-72 hours stale. At scale, that gap is material.</div>
     </div>
-    <div class="problem-cell">
+    <div class="problem-cell reveal">
       <div class="problem-num">03</div>
       <div class="problem-title">Discrepancies hide in the detail</div>
       <div class="problem-body">PSPs net fees, refunds, and FX adjustments against your payouts without clear itemisation. A £40,000 settlement arrives as £37,200 and your team spends hours tracing the difference — time that should be spent on analysis, not administration.</div>
     </div>
-    <div class="problem-cell">
+    <div class="problem-cell reveal">
       <div class="problem-num">04</div>
       <div class="problem-title">No forward visibility when you need it most</div>
       <div class="problem-body">Xero tells you what happened last month. Your bank tells you what's there today. Neither tells you what your cash position will be in 14 days when your next Amazon disbursement is due and your supplier payment goes out. That gap costs you sleep and sometimes costs you money.</div>
@@ -558,21 +671,50 @@ footer{
 <!-- HOW IT WORKS -->
 <section id="how" style="background:var(--light);max-width:none;padding:100px 0">
   <div style="max-width:1200px;margin:0 auto;padding:0 48px">
-    <div class="section-label">How it works</div>
-    <h2 class="section-title">Connected, reconciled,<br>and live in 48 hours.</h2>
-    <p class="section-sub">No lengthy implementation. No consultants. Shodipo connects to your existing PSPs and banking relationships and starts reconciling immediately.</p>
+    <div class="section-label reveal">How it works</div>
+    <h2 class="section-title reveal">Connected, reconciled,<br>and live in 48 hours.</h2>
+    <p class="section-sub reveal">No lengthy implementation. No consultants. Shodipo connects to your existing PSPs and banking relationships and starts reconciling immediately.</p>
+
+    <!-- animated flow: PSPs -> Shodipo -> Bank -->
+    <div class="how-flow reveal" aria-hidden="true">
+      <svg viewBox="0 0 1080 120" preserveAspectRatio="xMidYMid meet">
+        <path class="flow-dash" d="M150 60 H520"/>
+        <path class="flow-dash" d="M560 60 H930"/>
+        <circle class="flow-pellet" r="4"><animateMotion dur="2.4s" repeatCount="indefinite" path="M150 60 H520"/></circle>
+        <circle class="flow-pellet" r="4"><animateMotion dur="2.4s" begin="1.2s" repeatCount="indefinite" path="M560 60 H930"/></circle>
+        <!-- PSP node -->
+        <g transform="translate(75,60)">
+          <rect x="-72" y="-26" width="150" height="52" rx="8" fill="#fff" stroke="var(--border)"/>
+          <text class="flow-node" x="3" y="-2" text-anchor="middle">PSPs</text>
+          <text class="flow-sub" x="3" y="13" text-anchor="middle">Stripe · Amazon · PayPal</text>
+        </g>
+        <!-- Shodipo node -->
+        <g transform="translate(540,60)">
+          <rect x="-58" y="-28" width="116" height="56" rx="8" fill="#0A0A0A"/>
+          <text class="flow-node" x="0" y="-3" text-anchor="middle" fill="#fff" style="font-family:'DM Serif Display',serif;font-size:14px">Shodipo</text>
+          <text class="flow-sub" x="0" y="13" text-anchor="middle" fill="rgba(255,255,255,.5)">matches in real time</text>
+        </g>
+        <!-- Bank node -->
+        <g transform="translate(1005,60)">
+          <rect x="-78" y="-26" width="150" height="52" rx="8" fill="#fff" stroke="var(--border)"/>
+          <text class="flow-node" x="-3" y="-2" text-anchor="middle">Your bank</text>
+          <text class="flow-sub" x="-3" y="13" text-anchor="middle">via Open Banking</text>
+        </g>
+      </svg>
+    </div>
+
     <div class="how-grid">
-      <div class="how-step">
+      <div class="how-step reveal">
         <div class="how-n">01</div>
         <div class="how-title">Connect your payment platforms</div>
         <div class="how-body">Authorise Shodipo to read data from Stripe, Amazon Seller Central, PayPal, and Shopify Payments using secure OAuth connections. Read-only access — Shodipo never touches your money, only reads the data. Takes under 20 minutes per PSP.</div>
       </div>
-      <div class="how-step">
+      <div class="how-step reveal">
         <div class="how-n">02</div>
         <div class="how-title">Connect your bank via Open Banking</div>
         <div class="how-body">Using FCA-regulated Open Banking infrastructure, Shodipo connects to your business bank accounts — Barclays, HSBC, Lloyds, NatWest, and others. This is the connection that closes the loop between what your PSPs say is coming and what actually lands.</div>
       </div>
-      <div class="how-step">
+      <div class="how-step reveal">
         <div class="how-n">03</div>
         <div class="how-title">Reconciliation runs automatically</div>
         <div class="how-body">Shodipo matches every PSP settlement against your bank credits in real time. Matched settlements are confirmed automatically. Discrepancies are flagged with the exact difference and probable cause. Your team reviews exceptions — not every transaction.</div>
@@ -583,45 +725,45 @@ footer{
 
 <!-- FEATURES -->
 <section id="features">
-  <div class="section-label">What you get</div>
-  <h2 class="section-title">Everything your finance team<br>needs. Nothing they don't.</h2>
+  <div class="section-label reveal">What you get</div>
+  <h2 class="section-title reveal">Everything your finance team<br>needs. Nothing they don't.</h2>
   <div class="features-grid">
-    <div class="feature">
+    <div class="feature reveal">
       <div class="feature-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
       </div>
       <div class="feature-title">Live PSP balance dashboard</div>
       <div class="feature-body">See available, pending, and in-transit balances across every connected payment platform in a single view. Updated continuously — not once a day, not on a schedule. Always current.</div>
     </div>
-    <div class="feature">
+    <div class="feature reveal">
       <div class="feature-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
       </div>
       <div class="feature-title">Automated PSP-to-bank reconciliation</div>
       <div class="feature-body">Every settlement matched against every bank credit automatically. Matched, pending, and discrepant transactions surfaced instantly. Audit trail maintained with full history for every reconciled transaction.</div>
     </div>
-    <div class="feature">
+    <div class="feature reveal">
       <div class="feature-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       </div>
       <div class="feature-title">30-day cash flow forecast</div>
       <div class="feature-body">Based on confirmed PSP settlement schedules, historical patterns, and your scheduled expenses. Gives your Finance Director the forward visibility they need for inventory decisions, supplier negotiations, and cash management.</div>
     </div>
-    <div class="feature">
+    <div class="feature reveal">
       <div class="feature-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       </div>
       <div class="feature-title">Discrepancy alerts and exception management</div>
       <div class="feature-body">When a settlement arrives short, late, or doesn't appear at all — Shodipo flags it immediately with the probable cause and the amount at variance. Your team investigates exceptions, not every line.</div>
     </div>
-    <div class="feature">
+    <div class="feature reveal">
       <div class="feature-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
       </div>
       <div class="feature-title">Channel profitability after all fees</div>
       <div class="feature-body">True net revenue per channel after processing fees, FX charges, refund netting, and reserve deductions. Know your real margin on Amazon vs Shopify vs direct, with no manual calculation required.</div>
     </div>
-    <div class="feature">
+    <div class="feature reveal">
       <div class="feature-icon">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
       </div>
@@ -633,27 +775,28 @@ footer{
 
 <!-- PROOF BAND -->
 <div class="proof-band">
+  <div class="spotlight"></div>
   <div class="proof-inner">
     <div class="proof-left">
-      <div class="section-label">Why it matters</div>
-      <h2 class="section-title" style="color:white;font-size:clamp(28px,3vw,42px)">The cost of manual reconciliation at scale.</h2>
-      <p class="section-sub">These numbers are from real retailers. The problem is bigger than most Finance Directors realise until they measure it.</p>
+      <div class="section-label reveal">Why it matters</div>
+      <h2 class="section-title reveal" style="color:white;font-size:clamp(28px,3vw,42px)">The cost of manual reconciliation at scale.</h2>
+      <p class="section-sub reveal">These numbers are from real retailers. The problem is bigger than most Finance Directors realise until they measure it.</p>
     </div>
     <div class="stats-grid">
       <div class="stat-row">
-        <div class="stat-n">2–3</div>
+        <div class="stat-n" data-count="2–3">2–3</div>
         <div class="stat-desc">Days per week a finance team member spends on PSP reconciliation at a retailer doing £20M+ in annual revenue</div>
       </div>
       <div class="stat-row" style="border-top:1px solid rgba(255,255,255,.08)">
-        <div class="stat-n">48h</div>
+        <div class="stat-n" data-count="48" data-suffix="h">48h</div>
         <div class="stat-desc">Average delay between a PSP settlement occurring and it appearing in a reconciled cash position — without Shodipo</div>
       </div>
       <div class="stat-row" style="border-top:1px solid rgba(255,255,255,.08)">
-        <div class="stat-n">£180k</div>
+        <div class="stat-n" data-prefix="£" data-count="180" data-suffix="k">£180k</div>
         <div class="stat-desc">Estimated annual cost of manual reconciliation for a 3-person finance team — in labour alone, before opportunity cost</div>
       </div>
       <div class="stat-row" style="border-top:1px solid rgba(255,255,255,.08)">
-        <div class="stat-n">&lt;24h</div>
+        <div class="stat-n" data-prefix="&lt;" data-count="24" data-suffix="h">&lt;24h</div>
         <div class="stat-desc">Time to see your first fully reconciled cash position in Shodipo from the moment you connect your first PSP</div>
       </div>
     </div>
@@ -664,6 +807,7 @@ footer{
 
 <!-- CTA -->
 <div class="cta-section" id="contact">
+  <div class="spotlight"></div>
   <div class="cta-inner">
     <div class="section-label" style="color:rgba(255,255,255,.4);justify-content:center;margin-bottom:20px">
       <span style="background:rgba(255,255,255,.4);height:1px;width:24px;display:block"></span>
@@ -686,30 +830,154 @@ footer{
   <div class="footer-links">
     <a href="#how">How it works</a>
     <a href="#features">Features</a>
-
   </div>
-  <div class="footer-copy">© 2025 Shodipo. Built in the UK.</div>
+  <div class="footer-copy">© 2026 Shodipo. Built in the UK.</div>
 </footer>
 
 <script>
-// Form handled by Formspree
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Smooth scroll for nav links
-document.querySelectorAll('a[href^="#"]').forEach(function(a){
-  a.addEventListener('click',function(e){
-    var target = document.querySelector(this.getAttribute('href'));
-    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'})}
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var href=this.getAttribute('href');
+      if(href==='#'){return;}
+      var target=document.querySelector(href);
+      if(target){e.preventDefault();target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}
+    });
   });
-});
 
-// Scroll reveal
-var observer = new IntersectionObserver(function(entries){
-  entries.forEach(function(entry){
-    if(entry.isIntersecting){
-      entry.target.style.opacity='1';
-      entry.target.style.transform='translateY(0)';
+  // Nav scroll state
+  var nav=document.getElementById('nav');
+  function onScroll(){ nav.classList.toggle('scrolled', window.scrollY>10); }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  // Hero headline word reveal
+  var hl=document.getElementById('heroHeadline');
+  if(hl && !reduce){ requestAnimationFrame(function(){ hl.classList.add('go'); }); }
+
+  // Scroll reveal (staggered within a group)
+  var reveals=document.querySelectorAll('.reveal');
+  if(reduce){ reveals.forEach(function(el){el.classList.add('in');}); }
+  else{
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          var el=entry.target;
+          var sibs=Array.prototype.filter.call(el.parentNode.children,function(c){return c.classList.contains('reveal');});
+          var idx=sibs.indexOf(el);
+          el.style.transitionDelay=(Math.min(idx,6)*0.07)+'s';
+          el.classList.add('in');
+          io.unobserve(el);
+        }
+      });
+    },{threshold:0.12,rootMargin:'0px 0px -8% 0px'});
+    reveals.forEach(function(el){io.observe(el);});
+  }
+
+  // Count-up helper
+  function animateNumber(el, opts){
+    var prefix=opts.prefix||'', suffix=opts.suffix||'', dec=opts.decimals||0, target=opts.value;
+    var dur=1100, start=null;
+    function step(ts){
+      if(!start) start=ts;
+      var p=Math.min((ts-start)/dur,1);
+      var eased=1-Math.pow(1-p,3);
+      var val=(target*eased).toFixed(dec);
+      el.textContent=prefix+val+suffix;
+      if(p<1) requestAnimationFrame(step);
+      else el.textContent=prefix+target.toFixed(dec)+suffix;
     }
-  });
-},{threshold:0.1});
+    if(reduce){ el.textContent=prefix+target.toFixed(dec)+suffix; return; }
+    requestAnimationFrame(step);
+  }
 
-document.querySelectorAll('.problem-cell,.how-step,.feature,.sta
+  // Hero KPI count-ups (run on load)
+  document.querySelectorAll('.hv-kpi-v[data-value]').forEach(function(el){
+    animateNumber(el,{prefix:el.dataset.prefix,suffix:el.dataset.suffix,decimals:parseInt(el.dataset.decimals||'0',10),value:parseFloat(el.dataset.value)});
+  });
+
+  // Proof stats count-up on scroll
+  var statEls=document.querySelectorAll('.stat-n[data-count]');
+  var sio=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      var el=entry.target; sio.unobserve(el);
+      var raw=el.dataset.count;
+      if(/^\d+$/.test(raw)){
+        animateNumber(el,{prefix:el.dataset.prefix||'',suffix:el.dataset.suffix||'',decimals:0,value:parseInt(raw,10)});
+      } // ranges like "2–3" just reveal as-is
+    });
+  },{threshold:0.4});
+  statEls.forEach(function(el){sio.observe(el);});
+
+  if(reduce) return; // skip the live "moving parts" below
+
+  // Live dashboard: Available Now gentle tick
+  var avail=document.getElementById('kpiAvailable');
+  if(avail){
+    setInterval(function(){
+      var base=2.84 + (Math.random()*0.06 - 0.02);
+      avail.textContent='£'+base.toFixed(2)+'M';
+    },4200);
+  }
+
+  // "Updated Xs ago" ticker
+  var upd=document.getElementById('hvUpdated'), secs=0;
+  if(upd){
+    setInterval(function(){
+      secs+=2;
+      upd.textContent = secs<5 ? 'Updated just now' : 'Updated '+secs+'s ago';
+      if(secs>=120) secs=0; // resets when new sync streams in
+    },2000);
+  }
+
+  // Amazon row flips Pending -> Matched after a moment
+  var amz=document.getElementById('amazonStatus');
+  if(amz){
+    setTimeout(function(){
+      amz.textContent='Matched';
+      amz.classList.remove('st-pending'); amz.classList.add('st-matched','st-flip');
+      if(upd){ secs=0; upd.textContent='Updated just now'; }
+    },3200);
+  }
+
+  // A new settlement streams in once, after the flip
+  var rows=document.getElementById('hvRows');
+  if(rows){
+    setTimeout(function(){
+      var r=document.createElement('div');
+      r.className='hv-row enter';
+      r.innerHTML='<div class="hv-row-left"><div class="hv-psp" style="background:#96BF48">Sh</div>'+
+                  '<span class="hv-name">Shopify</span></div>'+
+                  '<span class="hv-amt">£146,920</span>'+
+                  '<span class="hv-status st-matched">Matched</span>';
+      rows.insertBefore(r, rows.firstChild);
+      if(rows.children.length>4) rows.removeChild(rows.lastChild);
+      if(upd){ secs=0; upd.textContent='Updated just now'; }
+    },6400);
+  }
+
+  // Cursor glow / spotlight on dark surfaces
+  document.querySelectorAll('#heroVisual,.proof-band,.cta-section').forEach(function(zone){
+    zone.addEventListener('mousemove',function(e){
+      var rect=zone.getBoundingClientRect();
+      zone.style.setProperty('--mx',((e.clientX-rect.left)/rect.width*100)+'%');
+      zone.style.setProperty('--my',((e.clientY-rect.top)/rect.height*100)+'%');
+    });
+  });
+
+  // Magnetic buttons (subtle)
+  document.querySelectorAll('[data-magnetic]').forEach(function(btn){
+    btn.addEventListener('mousemove',function(e){
+      var r=btn.getBoundingClientRect();
+      var mx=e.clientX-r.left-r.width/2, my=e.clientY-r.top-r.height/2;
+      btn.style.transform='translate('+(mx*0.18)+'px,'+(my*0.28)+'px)';
+    });
+    btn.addEventListener('mouseleave',function(){ btn.style.transform='translate(0,0)'; });
+  });
+})();
+</script>
+</body>
+</html>
